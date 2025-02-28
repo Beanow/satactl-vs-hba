@@ -1,0 +1,3 @@
+# Running nixos-generate creates images
+*.qcow2
+/boot-drive/image
