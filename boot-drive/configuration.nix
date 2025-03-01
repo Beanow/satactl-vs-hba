@@ -40,17 +40,20 @@
   services.getty.autologinUser = lib.mkDefault "beanow";
 
   environment.systemPackages = with pkgs; [
+    pciutils
+    usbutils
+    smartmontools
+    zfs
+
+    git
     wget
     curl
     dig
     htop
-    zfs
-
-    fio
-
     powertop
     lm_sensors
-    smartmontools
+
+    fio
 
     prometheus-node-exporter
     prometheus-smartctl-exporter
