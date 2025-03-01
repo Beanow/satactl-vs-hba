@@ -17,7 +17,7 @@
   networking.useDHCP = lib.mkDefault true;
   networking.hostName = "svh-test";
   networking.hostId = "ad354062";
-  networking.firewall.allowedTCPPorts = [ 22 ];
+  # networking.firewall.allowedTCPPorts = [ 22 ];
 
   users.users = {
     beanow = {
@@ -60,5 +60,23 @@
   ];
 
   services.prometheus.exporters.node.enable = true;
+  services.prometheus.exporters.node.openFirewall = true;
   services.prometheus.exporters.smartctl.enable = true;
+  services.prometheus.exporters.smartctl.openFirewall = true;
+
+  systemd.user.services = {
+    "clone-on-boot" = {
+      serviceConfig.Type = "oneshot";
+      wants = [ "network-online.target" ];
+      wantedBy = [ "default.target" ];
+      script = ''
+        set -xeuf -o pipefail
+        PATH="$PATH:${pkgs.git}/bin"
+        export PATH
+
+        git clone --depth=1 https://github.com/Beanow/satactl-vs-hba.git ~/repo
+      '';
+    };
+  };
+
 }
