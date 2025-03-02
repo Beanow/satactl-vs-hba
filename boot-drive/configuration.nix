@@ -52,6 +52,8 @@ in
     usbutils
     smartmontools
     zfs
+    util-linux
+    sysstat
 
     git
     wget
