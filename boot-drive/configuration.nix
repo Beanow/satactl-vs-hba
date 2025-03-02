@@ -4,6 +4,14 @@
   pkgs,
   ...
 }:
+
+let
+  onlineCheck = import ./utils/online.nix {
+    internetEndpoint = "github.com";
+    exitCode = "1";
+    inherit pkgs;
+  };
+in
 {
 
   imports = [
@@ -17,7 +25,6 @@
   networking.useDHCP = lib.mkDefault true;
   networking.hostName = "svh-test";
   networking.hostId = "ad354062";
-  # networking.firewall.allowedTCPPorts = [ 22 ];
 
   users.users = {
     beanow = {
@@ -39,6 +46,7 @@
   services.openssh.settings.PasswordAuthentication = false;
   services.getty.autologinUser = lib.mkDefault "beanow";
 
+  system.stateVersion = "25.05";
   environment.systemPackages = with pkgs; [
     pciutils
     usbutils
@@ -49,10 +57,13 @@
     wget
     curl
     dig
+    iputils
+    vim
     htop
     powertop
     lm_sensors
 
+    ulid
     fio
 
     prometheus-node-exporter
@@ -66,15 +77,24 @@
 
   systemd.user.services = {
     "clone-on-boot" = {
-      serviceConfig.Type = "oneshot";
-      wants = [ "network-online.target" ];
+      wants = [
+        "network.target"
+        "network-online.target"
+      ];
       wantedBy = [ "default.target" ];
+      serviceConfig.Type = "oneshot";
       script = ''
-        set -xeuf -o pipefail
+        set -xeu -o noglob -o pipefail
+
         PATH="$PATH:${pkgs.git}/bin"
         export PATH
 
-        git clone --depth=1 https://github.com/Beanow/satactl-vs-hba.git ~/repo
+        ${onlineCheck}
+
+        [[ ! -d ~/repo ]] && git clone https://github.com/Beanow/satactl-vs-hba.git ~/repo
+        pushd ~/repo
+        git pull
+        popd
       '';
     };
   };
