@@ -19,6 +19,7 @@ in
   ];
 
   services.zfs.trim.enable = true;
+  services.hardware.bolt.enable = true;
 
   time.timeZone = "Europe/Amsterdam";
 
@@ -49,6 +50,7 @@ in
   system.stateVersion = "25.05";
   environment.systemPackages = with pkgs; [
     pciutils
+    dmidecode
     usbutils
     smartmontools
     zfs
@@ -64,6 +66,8 @@ in
     htop
     powertop
     lm_sensors
+    bolt
+    thunderbolt
 
     ulid
     fio
@@ -100,5 +104,10 @@ in
       '';
     };
   };
+
+  # Always authorize USB4 - PCIe tunneling
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="thunderbolt", ATTR{authorized}=="0", ATTR{authorized}="1"
+  '';
 
 }

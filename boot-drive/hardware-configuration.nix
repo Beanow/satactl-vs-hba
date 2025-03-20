@@ -14,7 +14,7 @@ let
     "44"
   ];
   shortId = id: builtins.substring 38 4 id;
-  data = import ./data;
+  data = import ./data.nix;
 in
 {
   # hardware.enableAllFirmware = true;
